@@ -1,0 +1,41 @@
+AERORESOLVE AI - AVIATION OPERATIONAL PROTOCOLS & FAA GUIDELINES
+
+1. WEATHER DELAY AND DE-ICING PROTOCOLS
+
+1.1 Winter Operations & Ground De-Icing:
+   - Holdover Time (HOT): The estimated time deicing/anti-icing fluid will prevent frost, ice, or snow from adhering to aircraft surfaces.
+   - Ground operational rules mandate that aircraft must depart within the approved Holdover Time after de-icing.
+   - If Holdover Time expires before takeoff, a visual tactile inspection or re-application of Type IV anti-icing fluid is mandatory.
+   - Snow accumulation exceeding 0.5 inches per hour triggers compulsory snowplow surface management on active runways.
+
+1.2 Severe Thunderstorms & Convective Activity:
+   - FAA guidelines recommend holding or delaying departure if thunderstorm cells are within 10 nautical miles of the airport or flight path.
+   - Ground operations (fueling, baggage handling, pushback) must halt immediately when lightning strikes occur within a 5-nautical-mile radius of the airfield.
+   - Convective SIGMETs automatically suspend visual approach operations and enforce Instrument Flight Rules (IFR).
+
+1.3 Low Visibility & Cloud Ceilings:
+   - Category I (CAT I) ILS approaches require a minimum decision height of 200 feet and Runway Visual Range (RVR) of 2,400 feet.
+   - Category III (CAT III) operations permit landing under zero-ceiling conditions with specialized autopilot landing systems.
+   - Departure operations are prohibited if visibility falls below 500 feet RVR unless surface movement radar and centerline lights are fully operational.
+
+2. AIR TRAFFIC CONTROL & CONGESTION MANAGEMENT
+
+2.1 Ground Stops & Ground Delay Programs (GDP):
+   - Ground Stop (GS): Enforced by the FAA System Command Center when traffic demand severely exceeds airport capacity, or during sudden severe weather.
+   - Flights bound for a Ground Stop airport are held on the ground at their origin airport.
+   - Ground Delay Program (GDP): Used to meter incoming traffic by assigning Estimated Departure Clearance Times (EDCT).
+
+2.2 Slot Constraints & Runway Capacity:
+   - High-density airports (e.g., JFK, LGA, ORD) operate under strict arrival and departure slot allocations.
+   - Peak hour congestion reduces maximum acceptance rates from 90 arrivals/hour down to 30 arrivals/hour during single-runway operations.
+
+3. SAFETY REGULATIONS & PASSENGER PROTECTION
+
+3.1 Tarmac Delay Rules:
+   - US DOT regulations stipulate that domestic flights cannot remain on the tarmac for more than 3 hours without giving passengers the opportunity to deplane.
+   - For international flights, the limit is 4 hours.
+   - Airlines must provide food and potable water no later than 2 hours after the aircraft leaves the gate or touches down.
+
+3.2 Flight Crew Duty Time Limits (FAR Part 117):
+   - Flight Crew Member Flight Duty Period (FDP) limits are capped between 9 to 14 hours depending on report time and number of flight segments.
+   - Rest periods must be at least 10 consecutive hours prior to starting a FDP, with a minimum 8-hour uninterrupted sleep opportunity.

@@ -1,0 +1,13 @@
+# Security & API Keys
+.env
+
+# Virtual Environment & Python Cache
+.venv/
+__pycache__/
+*.pyc
+
+# Local Streamlit Secrets
+.streamlit/secrets.toml
+
+# Heavy Datasets (Keep local only)
+data/

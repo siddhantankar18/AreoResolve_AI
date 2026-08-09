@@ -1,0 +1,25 @@
+Generating predictions and evaluating best model...
+
+Classification Report (Default 50% Threshold):
+              precision    recall  f1-score   support
+
+         0.0       0.88      0.67      0.76     96000
+         1.0       0.32      0.64      0.43     24000
+
+    accuracy                           0.66    120000
+   macro avg       0.60      0.65      0.59    120000
+weighted avg       0.77      0.66      0.69    120000
+
+ROC-AUC Score: 0.7063
+
+=======================================================
+🎛️ ADVANCED: THRESHOLD TUNING FOR MAX RECALL
+=======================================================
+Confidence Threshold 50% -> Precision: 0.32 | Recall: 0.64
+Confidence Threshold 45% -> Precision: 0.30 | Recall: 0.72
+Confidence Threshold 40% -> Precision: 0.27 | Recall: 0.80
+Confidence Threshold 35% -> Precision: 0.25 | Recall: 0.86
+
+Saving model and artifacts...
+✅ Done! Your High-Recall model is saved and ready for the Dashboard.
+  
