@@ -25,7 +25,6 @@ st.markdown("""
     /* Hide Streamlit default menu and footer */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
-    header {visibility: hidden;}
 
     /* Sidebar Styling */
     [data-testid="stSidebar"] {
