@@ -276,6 +276,10 @@ with tab2:
         st.chat_message("user").write(prompt)
         
         with st.spinner("Analyzing..."):
-            response = agent_4_chatbot(prompt, st.session_state.messages)
+            response = agent_4_chatbot(
+                prompt, st.session_state.messages,
+                raw_airline_code, origin_code, dest_code,
+                flight_date, dep_hour
+            )
             st.session_state.messages.append({"role": "assistant", "content": response})
             st.chat_message("assistant").write(response)
