@@ -14,13 +14,14 @@ def main():
         print(f"No CSV files found in '{folder_path}' folder.")
         return
         
-    first_file = csv_files[0]
+    # first_file = csv_files[0]
+    first_file = csv_files[1]
     file_path = os.path.join(folder_path, first_file)
     
     print(f"Reading file: {file_path}")
     
-    # Read ONLY the first 1000 rows to save memory
-    df = pd.read_csv(file_path, nrows=1000)
+    # Read ONLY the first 10000 rows to save memory
+    df = pd.read_csv(file_path, nrows=10000)
     
     print("\n--- Column Names ---")
     print(df.columns.tolist())
@@ -36,6 +37,9 @@ def main():
     
     print("\n--- First 10 Rows ---")
     print(df)
+    
+    print(f"---Checking for imbalance in data---")
+    print(df["ArrDel15"].value_counts(normalize=True))
 
 if __name__ == "__main__":
     main()
