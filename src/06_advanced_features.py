@@ -8,7 +8,7 @@ input_file = './data/processed/merged_flight_weather_data_600K.csv'
 output_file = './data/processed/advanced_features_600K.csv'
 
 if not os.path.exists(input_file):
-    print(f"Error: {input_file} not found. Execute step 05 first.")
+    print(f"Error: {input_file} not found.")
     exit()
 
 print("Loading data...")

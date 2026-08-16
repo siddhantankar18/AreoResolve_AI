@@ -6,7 +6,7 @@ input_file = './data/processed/master_flight_data_600k.csv'
 output_file = './data/processed/clean_flight_data_600k.csv'
 os.makedirs('./data/processed', exist_ok=True)
 
-print(" Starting Step 03: Data Cleaning & Feature Selection...")
+print("Starting Step 03: Data Cleaning & Feature Selection...")
 
 # 2. Load the Master 600k file
 if not os.path.exists(input_file):
@@ -15,7 +15,7 @@ else:
     df = pd.read_csv(input_file, low_memory=False)
     print(f"Original dataset loaded: {df.shape[0]:,} rows, {df.shape[1]} columns")
 
-    # 3. THE WHITELIST: Keeping only predictive features
+    # 3. THE WHITELIST: Keeping only predictive features to avoid data leakage from actual arrival information
     # We keep Schedule, Airline, and Geography info + our target.
     columns_to_keep = [
         'Year', 'Month', 'DayofMonth', 'DayOfWeek', 'FlightDate',

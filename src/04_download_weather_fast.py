@@ -4,51 +4,22 @@ import airportsdata
 from tqdm import tqdm
 import os
 
-# ==========================================
-# 1. PASTE YOUR AIRPORT LIST HERE
-# ==========================================
-# Replace this list with the exact output from your Jupyter Notebook!
-target_airports = ['ISP', 'SBP', 'MFE', 'HLN', 'MEI', 'CDC', 'GPT', 'GRR', 'LEX', 'PIT', 'SPN',
- 'PSP', 'RHI', 'IDA', 'CRW', 'PIR', 'LAN', 'SGF', 'IAG', 'DAL', 'COS', 'HHH',
- 'CLE', 'ABR', 'MSY', 'BPT', 'LAS', 'MRY', 'DTW', 'ABY', 'JMS', 'LGA', 'MIA',
- 'LIH', 'EWN', 'ONT', 'CID', 'OAJ', 'FNT', 'GFK', 'BOS', 'SJU', 'ABQ', 'TUL',
- 'SCC', 'OAK', 'MOT', 'AMA', 'JNU', 'HYA', 'BTM', 'SAN', 'ERI', 'LAW', 'DEN',
- 'DLH', 'BLI', 'PIH', 'MCW', 'MHK', 'MSN', 'OTH', 'ACY', 'PSE', 'PSM', 'STC',
- 'ABE', 'ALB', 'BGM', 'LNK', 'SFO', 'ROW', 'BTV', 'LAX', 'SAV', 'OKC', 'PRC',
- 'BIH', 'DDC', 'SJC', 'DSM', 'CLD', 'JAX', 'MAF', 'BRD', 'MEM', 'DVL', 'SMX',
- 'PSG', 'GST', 'FCA', 'YAK', 'PAE', 'GEG', 'RFD', 'PQI', 'LBE', 'CRP', 'OMA',
- 'EUG', 'FSM', 'IMT', 'MLB', 'MBS', 'VCT', 'ADQ', 'STX', 'GSO', 'CHS', 'KTN',
- 'DEC', 'FAR', 'HTS', 'LGB', 'TRI', 'MFR', 'DFW', 'APN', 'MGM', 'CAK', 'LBB',
- 'TWF', 'AGS', 'AEX', 'PGD', 'PVU', 'AUS', 'BTR', 'EAR', 'CPR', 'MLU', 'DHN',
- 'JAC', 'BIL', 'GNV', 'BGR', 'VRB', 'YUM', 'LFT', 'HYS', 'HSV', 'TXK', 'BHM',
- 'ILM', 'ESC', 'PIE', 'SNA', 'RIW', 'JST', 'MOB', 'CMI', 'CIU', 'KOA', 'CMH',
- 'COU', 'CLT', 'RKS', 'BJI', 'RDM', 'HPN', 'MLI', 'FWA', 'INL', 'LSE', 'LCK',
- 'AKN', 'SDF', 'GUF', 'AZA', 'ITO', 'SCE', 'BMI', 'GRB', 'RNO', 'SEA', 'LRD',
- 'GGG', 'ATL', 'STL', 'PNS', 'GSP', 'AVL', 'OGG', 'ABI', 'MDW', 'DAY', 'GRI',
- 'MVY', 'BFL', 'RIC', 'FLL', 'SLN', 'BZN', 'SYR', 'STT', 'CVG', 'FSD', 'SHR',
- 'EWR', 'CLL', 'BET', 'CHO', 'SGU', 'JFK', 'RAP', 'BLV', 'FLG', 'ELP', 'SBN',
- 'ATW', 'HIB', 'USA', 'PPG', 'HDN', 'ADK', 'BWI', 'AVP', 'MDT', 'TYR', 'BDL',
- 'DCA', 'RDU', 'SAT', 'BIS', 'MTJ', 'ORD', 'PDX', 'HRL', 'GTF', 'XWA', 'PSC',
- 'OME', 'SFB', 'LCH', 'SPI', 'SUN', 'BUF', 'HGR', 'LBL', 'RSW', 'GUC', 'TYS',
- 'HNL', 'COD', 'TUS', 'IAD', 'BFF', 'EVV', 'CAE', 'SMF', 'STS', 'FOD', 'SUX',
- 'HOB', 'PIA', 'FAT', 'LIT', 'RDD', 'LAR', 'SCK', 'MCO', 'LBF', 'JAN', 'BNA',
- 'SRQ', 'CDV', 'BUR', 'PHX', 'GUM', 'GTR', 'BOI', 'ICT', 'XNA', 'MHT', 'WYS',
- 'PIB', 'ROA', 'MYR', 'GCC', 'CYS', 'TPA', 'FMN', 'ACT', 'MGW', 'ELM', 'DAB',
- 'TLH', 'FAY', 'AZO', 'PWM', 'CWA', 'DIK', 'MCI', 'BRO', 'BRW', 'PBG', 'SWF',
- 'JLN', 'CKB', 'BQN', 'PHL', 'EKO', 'OTZ', 'DLG', 'LAF', 'HOU', 'ITH', 'SWO',
- 'ROC', 'IAH', 'ECP', 'PHF', 'WRG', 'ACV', 'SLC', 'ASE', 'SJT', 'RST', 'CMX',
- 'SAF', 'MSP', 'EAU', 'PVD', 'FAI', 'GJT', 'SBA', 'SIT', 'IND', 'VPS', 'GCK',
- 'EGE', 'TVC', 'ANC', 'EYW', 'ORH', 'ALO', 'SPS', 'MKE', 'PLN', 'SHV', 'GRK',
- 'ORF', 'TTN', 'ACK', 'TOL', 'DRO', 'CHA', 'LWS', 'PBI', 'MQT', 'ATY', 'MSO']
+# 1. AIRPORT LIST
+file_path = "data/processed/clean_flight_data_600k.csv"
+
+df = pd.read_csv(file_path)
+target_airports = set(
+    df["Origin"].dropna()
+).union(
+    df["Dest"].dropna()
+)
 
 weather_dir = "./data/weather"
 os.makedirs(weather_dir, exist_ok=True)
 
-print(f"🚀 Starting Weather Fetch for {len(target_airports)} airports...")
+print(f"Starting Weather Fetch for {len(target_airports)} airports...")
 
-# ==========================================
 # 2. GET GPS AND DOWNLOAD WEATHER
-# ==========================================
 airports = airportsdata.load('IATA')
 master_weather_list = []
 
@@ -64,7 +35,7 @@ for airport_code in tqdm(target_airports, desc="Fetching Airport Weather"):
     # Hit the Open-Meteo Archive for the ENTIRE year in one single call per airport
     url = f"https://archive-api.open-meteo.com/v1/archive?latitude={lat}&longitude={lon}&start_date=2025-01-01&end_date=2025-12-31&hourly=temperature_2m,precipitation,wind_speed_10m,visibility&timezone=auto"
     
-    response = requests.get(url)
+    response = requests.get(url, timeout = 30)
     
     if response.status_code == 200:
         data = response.json()
@@ -75,9 +46,7 @@ for airport_code in tqdm(target_airports, desc="Fetching Airport Weather"):
     else:
         print(f" Failed to fetch weather for {airport_code}. Status: {response.status_code}")
 
-# ==========================================
 # 3. PROCESS AND SAVE MASTER DATABASE
-# ==========================================
 if not master_weather_list:
     print("\n No weather data was downloaded. Exiting.")
     exit()

@@ -3,15 +3,14 @@ import glob
 import os
 from tqdm import tqdm
 
-# ==========================================
-# 1. SETUP & CONFIGURATION (LOCAL MAC)
-# ==========================================
+# 1. SETUP & CONFIGURATION
 raw_data_dir = "./data/raw"
 output_dir = "./data/processed"
 os.makedirs(output_dir, exist_ok=True)
 
+# Class-aware Sampling
 # The Magic Numbers: 40k Normal + 10k Delayed = 50,000 rows per month (80/20 split)
-# This perfectly preserves the real-world imbalance while saving RAM!
+# This perfectly preserves the real-world imbalance
 TARGET_NORMAL = 40000    
 TARGET_ABNORMAL = 10000  
 
@@ -24,25 +23,20 @@ if not flight_files:
 print(f"\nStarting Step 02: Targeted Undersampling...")
 print(f"Goal: {TARGET_NORMAL} Normal & {TARGET_ABNORMAL} Delayed flights per month.\n")
 
-# This empty list will hold all 12 of our 50k dataframes
 all_sampled_months = []
 
-# ==========================================
 # 2. PROCESS EACH MONTH
-# ==========================================
 for file in tqdm(flight_files, desc="Sampling Months"):
     filename = os.path.basename(file)
     
-    # 1. Find the target column safely
-    headers = pd.read_csv(file, nrows=0).columns
-    potential_targets = [col for col in headers if 'DEL15' in col.upper() or 'DELAY' in col.upper()]
-    target_col = next((c for c in potential_targets if 'ARR_DEL15' in c.upper() or 'ARRDEL15' in c.upper()), None)
+    # 1. Target column
+    target_col = "ArrDel15"
     
     if not target_col:
         print(f"\nSkipping {filename}: No delay column found.")
         continue
 
-    # 2. Load the CSV
+    # 2. Load the CSV at once
     df = pd.read_csv(file, low_memory=False)
     
     # Clean the target column to ensure it is numeric
@@ -63,14 +57,13 @@ for file in tqdm(flight_files, desc="Sampling Months"):
         
     # 5. Combine and shuffle the month
     final_50k_df = pd.concat([sampled_normal, sampled_delayed])
+    # shuffling using .sample and frac = 1 means 100% shuffling
     final_50k_df = final_50k_df.sample(frac=1, random_state=42).reset_index(drop=True)
     
     # Add to our master list
     all_sampled_months.append(final_50k_df)
 
-# ==========================================
 # 3. THE GRAND MERGE
-# ==========================================
 print("\n Merging all 12 months into a single Master Dataset...")
 
 master_df = pd.concat(all_sampled_months, ignore_index=True)

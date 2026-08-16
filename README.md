@@ -1,18 +1,17 @@
-
 # ✈️ AeroResolve AI
 
 ### AI-Powered Flight Delay Prediction & Operational Risk Assessment
 
-AeroResolve AI is an **AI-powered aviation decision-support system** that predicts flight delay risk and provides operational insights using  **Machine Learning, Agentic AI, real-time weather data, RAG, and LLMs** .
+AeroResolve AI is an **AI-powered aviation decision-support system** that predicts flight delay risk and provides operational insights using  **Machine Learning, Agentic AI, historical weather data, RAG, and LLMs** .
 
 ## 🚀 Key Features
 
 * ✈️ **Flight Delay Prediction** using XGBoost
-* 🌦️ **Live Weather Analysis** using Open-Meteo
+* 🌦️ **Live Weather and Forecast Analysis** using Open-Meteo
 * 🤖 **Multi-Agent AI** for flight, weather, route, and risk analysis
-* 📚 **RAG** using FAA aviation protocols
+* 📚 **RAG-based aviation protocol retrieval using FAISS and HuggingFace embeddings**
 * 🔎 **FAISS Vector Database** for knowledge retrieval
-* 🧠 **Llama 3.3 70B** through Groq for AI-generated assessments
+* 🧠 **GPT-OSS-20B** through Groq for AI-generated assessments
 * 📊 **Streamlit Dashboard** for interactive risk visualization
 
 ## 🏗️ Architecture
@@ -28,7 +27,7 @@ XGBoost Risk Prediction
      ↓
 FAA Protocol RAG + FAISS
      ↓
-Llama 3.3 70B
+GPT-OSS-20B
      ↓
 Final Risk Assessment
      ↓
@@ -43,7 +42,7 @@ Operational Recommendation
 | Dashboard  | Streamlit             |
 | ML         | XGBoost, Scikit-learn |
 | AI Agents  | LangChain             |
-| LLM        | Llama 3.3 70B, Groq   |
+| LLM        | GPT-OSS-20B, Groq     |
 | RAG        | LangChain, FAISS      |
 | Embeddings | HuggingFace           |
 | Data       | Pandas, NumPy         |

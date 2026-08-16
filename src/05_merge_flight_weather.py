@@ -1,9 +1,9 @@
 import pandas as pd
 import os
 
-print(" Starting Step 05: The Grand Merge (Flight + Weather)...")
+print("Starting Step 05: The Grand Merge (Flight + Weather)...")
 
-# 1. Paths - UPDATED TO MATCH YOUR FILE NAME
+# 1. Paths
 flight_file = './data/processed/clean_flight_data_600k.csv' 
 weather_file = './data/weather/master_weather_2025.csv'
 output_file = './data/processed/merged_flight_weather_data_600K.csv'
@@ -32,7 +32,7 @@ weather_origin = weather_df.rename(columns={
 
 # Prepare Destination Weather: Rename columns to *_dest
 weather_dest = weather_df.rename(columns={
-    'ORIGIN': 'Dest',  # Merge on Destination airport
+    'ORIGIN': 'Dest', 
     'YEAR': 'Year',
     'MONTH': 'Month',
     'DAY_OF_MONTH': 'DayofMonth',

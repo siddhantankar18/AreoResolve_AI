@@ -52,7 +52,6 @@ base_model = xgb.XGBClassifier(
     n_jobs=-1
 )
 
-# A focused parameter grid for GridSearchCV
 param_grid = {
     'max_depth': [6, 8],
     'learning_rate': [0.05, 0.1],
@@ -63,7 +62,7 @@ param_grid = {
 grid_search = GridSearchCV(
     estimator=base_model,
     param_grid=param_grid,
-    scoring='recall',  # <-- RESTORED: The AI strictly fights for maximum Recall
+    scoring='recall',  # strictly fights for maximum Recall
     cv=3,
     verbose=2,
     n_jobs=-1
@@ -85,9 +84,7 @@ print(classification_report(y_test, y_pred))
 auc_score = roc_auc_score(y_test, y_prob)
 print(f"ROC-AUC Score: {auc_score:.4f}")
 
-print("\n=======================================================")
-print("🎛️ ADVANCED: THRESHOLD TUNING FOR MAX RECALL")
-print("=======================================================")
+print(" ADVANCED: THRESHOLD TUNING FOR MAX RECALL")
 
 # Sweeping thresholds to find the sweet spot for business operations
 thresholds = [0.50, 0.45, 0.40, 0.35]
@@ -95,10 +92,10 @@ for t in thresholds:
     custom_preds = (y_prob >= t).astype(int)
     r = recall_score(y_test, custom_preds)
     p = precision_score(y_test, custom_preds)
-    print(f"Confidence Threshold {int(t*100)}% -> Precision: {p:.2f} | Recall: {r:.2f}")
+    print(f"Classification probability Threshold {int(t*100)}% -> Precision: {p:.2f} | Recall: {r:.2f}")
 
 print("\nSaving model and artifacts...")
 joblib.dump(model, os.path.join(model_dir, 'xgboost_model.pkl'))
 joblib.dump(target_encoder, os.path.join(model_dir, 'target_encoder.pkl'))
 joblib.dump(X_train_encoded.columns.tolist(), os.path.join(model_dir, 'feature_columns.pkl'))
-print("✅ Done! Your High-Recall model is saved and ready for the Dashboard.")
+print(" Done! Your High-Recall model is saved and ready for the Dashboard.")
