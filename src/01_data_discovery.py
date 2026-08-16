@@ -19,11 +19,20 @@ def main():
     
     print(f"Reading file: {file_path}")
     
-    # Read ONLY the first 10 rows to save memory
-    df = pd.read_csv(file_path, nrows=10)
+    # Read ONLY the first 1000 rows to save memory
+    df = pd.read_csv(file_path, nrows=1000)
     
     print("\n--- Column Names ---")
     print(df.columns.tolist())
+    
+    print("\n--- info ---")
+    print(df.info())
+    
+    print("\n--- null values ---")
+    print(df.isnull().sum())
+    
+    print("\n--- describe ---")
+    print(df.describe())
     
     print("\n--- First 10 Rows ---")
     print(df)
