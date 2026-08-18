@@ -189,8 +189,7 @@ with tab1:
         with st.status("Initializing AeroResolve AI...", expanded=True) as status:
             
             st.write("🛂 Agent 0: Validating Route Feasibility...")
-            # We now pass the FULL names (origin_name, dest_name) so the AI knows it's an AFB!
-            validation = agent_0_validator(airline_name, origin_name, dest_name)
+            validation = agent_0_validator(raw_airline_code, origin_code, dest_code)
             
             if not validation.get("feasible", True):
                 status.update(label="Mission Aborted: Invalid Route", state="error", expanded=True)
@@ -205,28 +204,39 @@ with tab1:
             
             st.write("📚 Consulting FAA Knowledge Base (RAG)...")
             report = agent_3_dispatcher(risk, flight_date)
-            status.update(label="Mission Assessment Complete!", state="complete", expanded=False)
+            if risk.get("prediction_available", False):
+                status.update(label="Mission Assessment Complete!", state="complete", expanded=False)
+            else:
+                status.update(label="Mission Assessment Incomplete", state="error", expanded=True)
         
         # --- CUSTOM HTML METRICS DASHBOARD ---
         st.markdown("<h3 style='color: #f8fafc; margin-top: 30px; margin-bottom: 15px;'>📊 Live Telemetry</h3>", unsafe_allow_html=True)
         
+        def metric_value(value, decimals=1):
+            if value is None:
+                return "N/A"
+            try:
+                return f"{float(value):.{decimals}f}"
+            except (TypeError, ValueError):
+                return "N/A"
+
         metrics_html = f"""
         <div style='display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;'>
             <div class='metric-card'>
                 <div class='metric-title'>Origin Wind</div>
-                <div class='metric-value'>{risk.get('wind_origin', 0)} <span class='metric-unit'>km/h</span></div>
+                <div class='metric-value'>{metric_value(risk.get('wind_origin'))} <span class='metric-unit'>km/h</span></div>
             </div>
             <div class='metric-card'>
                 <div class='metric-title'>Origin Visibility</div>
-                <div class='metric-value'>{risk.get('visib_origin', 10):.1f} <span class='metric-unit'>km</span></div>
+                <div class='metric-value'>{metric_value(risk.get('visib_origin'))} <span class='metric-unit'>km</span></div>
             </div>
             <div class='metric-card'>
                 <div class='metric-title'>Dest Wind</div>
-                <div class='metric-value'>{risk.get('wind_dest', 0)} <span class='metric-unit'>km/h</span></div>
+                <div class='metric-value'>{metric_value(risk.get('wind_dest'))} <span class='metric-unit'>km/h</span></div>
             </div>
             <div class='metric-card'>
                 <div class='metric-title'>Dest Precip</div>
-                <div class='metric-value'>{risk.get('precip_dest', 0):.1f} <span class='metric-unit'>mm</span></div>
+                <div class='metric-value'>{metric_value(risk.get('precip_dest'))} <span class='metric-unit'>mm</span></div>
             </div>
         </div>
         """
@@ -235,12 +245,18 @@ with tab1:
         st.markdown("<h3 style='color: #f8fafc; margin-bottom: 15px;'>⚠️ AI Risk Analysis</h3>", unsafe_allow_html=True)
         
         # Dynamic Custom Risk Alert Box
-        risk_percentage = risk['risk_prob'] * 100
-        if risk['risk_prob'] >= 0.60:
-            st.markdown(f"<div class='alert-high'><strong>🚨 CRITICAL RISK: {risk_percentage:.1f}%</strong><br><br>{risk['risk_level']}</div>", unsafe_allow_html=True)
-        elif risk['risk_prob'] >= 0.40:
-            st.markdown(f"<div class='alert-mod'><strong>⚠️ MODERATE RISK: {risk_percentage:.1f}%</strong><br><br>{risk['risk_level']}</div>", unsafe_allow_html=True)
+        risk_prob = risk.get('risk_prob')
+        if risk_prob is None:
+            st.error(f"Risk prediction unavailable: {risk.get('risk_level', 'Model or weather data failed.')}")
+            for weather_error in risk.get("weather_errors", []):
+                st.warning(weather_error)
         else:
+            risk_percentage = risk_prob * 100
+        if risk_prob is not None and risk_prob >= 0.60:
+            st.markdown(f"<div class='alert-high'><strong>🚨 CRITICAL RISK: {risk_percentage:.1f}%</strong><br><br>{risk['risk_level']}</div>", unsafe_allow_html=True)
+        elif risk_prob is not None and risk_prob >= 0.40:
+            st.markdown(f"<div class='alert-mod'><strong>⚠️ MODERATE RISK: {risk_percentage:.1f}%</strong><br><br>{risk['risk_level']}</div>", unsafe_allow_html=True)
+        elif risk_prob is not None:
             st.markdown(f"<div class='alert-low'><strong>✅ CLEAR TO FLY: {risk_percentage:.1f}%</strong><br><br>{risk['risk_level']}</div>", unsafe_allow_html=True)
             
         st.markdown("<br>", unsafe_allow_html=True)

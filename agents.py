@@ -1,48 +1,60 @@
 import os
 import math
+import json
 import requests
+import joblib
 import airportsdata
 import pandas as pd
-import xgboost as xgb
-import json
-import re
-from datetime import datetime
-import joblib
 import numpy as np
+from datetime import datetime, date, timedelta
+
 
 from langchain_groq import ChatGroq
 from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_community.vectorstores import FAISS
 
-os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
-
 # Initialized Groq LLM & HuggingFace Embeddings
 llm = ChatGroq(model="openai/gpt-oss-20b", temperature=0.2)
 embeddings = HuggingFaceEmbeddings(model_name="sentence-transformers/all-MiniLM-L6-v2")
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PROJECT_ROOT = os.path.abspath(os.path.join(BASE_DIR, ".."))
+
+FAISS_PATH = os.path.join(
+    BASE_DIR,
+    "faiss_aviation_index"
+)
+
+# Loading model
+MODEL_PATH = os.path.join(
+    BASE_DIR,
+    "models",
+    "xgboost_model.pkl"
+)
+xgb_model = joblib.load(MODEL_PATH)
+
+
+ENCODER_PATH = os.path.join(
+    BASE_DIR,
+    "models",
+    "target_encoder.pkl"
+)
+
+target_encoder = joblib.load(ENCODER_PATH)
+
+FEATURE_PATH = os.path.join(
+    BASE_DIR,
+    "models",
+    "feature_columns.pkl"
+)
+
+feature_columns = joblib.load(FEATURE_PATH)
 
 try:
-    faiss_path = os.path.join(BASE_DIR, "faiss_aviation_index")
-    if not os.path.exists(faiss_path):
-        faiss_path = os.path.join(PROJECT_ROOT, "faiss_aviation_index")
-    vector_db = FAISS.load_local(faiss_path, embeddings, allow_dangerous_deserialization=True)
-except:
+    vector_db = FAISS.load_local(FAISS_PATH, embeddings, allow_dangerous_deserialization=True)
+except Exception as e:
+    print(f"Failed to load FAISS index: {e}")
     vector_db = None
-
-# FIX 1: Search for model in BASE_DIR or models/ subfolder
-xgb_model = None
-possible_paths = [
-    os.path.join(BASE_DIR, "xgboost_model.pkl"),
-    os.path.join(BASE_DIR, "models", "xgboost_model.pkl"),
-    os.path.join(PROJECT_ROOT, "models", "xgboost_model.pkl")
-]
-for p in possible_paths:
-    if os.path.exists(p):
-        xgb_model = joblib.load(p)
-        break
 
 
 def get_flight_distance(origin, dest):
@@ -96,10 +108,6 @@ def agent_0_validator(airline, origin, dest):
 
         print(f"⚠️ Agent 0 Parsing Error: {e}")
         return {"feasible": False, "reason": f"System Safety Override: Unable to validate route parameters securely. (Error: {e})"}
-
-
-from datetime import datetime, date, timedelta
-
 
 def agent_1_meteorologist(origin, dest, flight_date, dep_hour):
     airports = airportsdata.load('IATA')
@@ -172,80 +180,105 @@ def agent_1_meteorologist(origin, dest, flight_date, dep_hour):
 
 
 def agent_2_data_scientist(weather_data, airline, flight_date, dep_hour):
-    if not xgb_model:
-        return {
-            **weather_data,
-            "risk_prob": 0.0,
-            "risk_level": "ERROR: Model not found"
-        }
+    """Predict flight delay risk using the trained XGBoost model."""
 
-    origin = weather_data['origin']
-    dest = weather_data['dest']
+    origin = weather_data["origin"]
+    dest = weather_data["dest"]
+
     arr_hour = (dep_hour + 3) % 24
     distance = get_flight_distance(origin, dest)
 
-    temp_orig = weather_data.get('temp_origin', 20)
-    precip_orig = weather_data.get('precip_origin', 0)
-    wind_orig = weather_data.get('wind_origin', 0)
-    visib_orig = weather_data.get('visib_origin', 10)
+    # Weather
+    temp_orig = weather_data.get("temp_origin", 20)
+    precip_orig = weather_data.get("precip_origin", 0)
+    wind_orig = weather_data.get("wind_origin", 0)
+    visib_orig = weather_data.get("visib_origin", 10)
 
-    temp_dest_val = weather_data.get('temp_dest', 20)
-    precip_dest_val = weather_data.get('precip_dest', 0)
-    wind_dest_val = weather_data.get('wind_dest', 0)
-    visib_dest_val = weather_data.get('visib_dest', 10)
+    temp_dest = weather_data.get("temp_dest", 20)
+    precip_dest = weather_data.get("precip_dest", 0)
+    wind_dest = weather_data.get("wind_dest", 0)
+    visib_dest = weather_data.get("visib_dest", 10)
 
+    # Same features used during training
     input_data = pd.DataFrame([{
-        'Year': flight_date.year,
-        'Month': flight_date.month,
-        'DayofMonth': flight_date.day,
-        'DayOfWeek': flight_date.weekday() + 1,
-        'Reporting_Airline': airline,
-        'Origin': origin,
-        'Dest': dest,
-        'CRSDepTime': dep_hour * 100,
-        'CRSArrTime': arr_hour * 100,
-        'Distance': distance,
-        'DEP_HOUR': dep_hour,
-        'ARR_HOUR': arr_hour,
-        'temp_origin': temp_orig,
-        'precip_origin': precip_orig,
-        'wind_origin': wind_orig,
-        'visib_origin': visib_orig,
-        'temp_dest': temp_dest_val,
-        'precip_dest': precip_dest_val,
-        'wind_dest': wind_dest_val,
-        'visib_dest': visib_dest_val,
-        'dep_hour_sin': np.sin(2 * np.pi * dep_hour / 24.0),
-        'dep_hour_cos': np.cos(2 * np.pi * dep_hour / 24.0),
-        'arr_hour_sin': np.sin(2 * np.pi * arr_hour / 24.0),
-        'arr_hour_cos': np.cos(2 * np.pi * arr_hour / 24.0),
-        'is_morning_rush': 1 if 6 <= dep_hour <= 9 else 0,
-        'is_evening_rush': 1 if 15 <= dep_hour <= 19 else 0,
-        'weather_severity_origin': (precip_orig * 2.0) + (wind_orig * 0.5) + (10.0 - min(visib_orig, 10)),
-        'weather_severity_dest': (precip_dest_val * 2.0) + (wind_dest_val * 0.5) + (10.0 - min(visib_dest_val, 10)),
-        'storm_flag': 1 if (precip_orig > 5 or precip_dest_val > 5 or wind_orig > 35 or wind_dest_val > 35) else 0,
-        'ROUTE': f"{origin}_{dest}",
-        'origin_traffic_volume': 1000,
-        'dest_traffic_volume': 1000,
-        'route_traffic_volume': 100
+        "Year": flight_date.year,
+        "Month": flight_date.month,
+        "DayofMonth": flight_date.day,
+        "DayOfWeek": flight_date.weekday() + 1,
+
+        "Reporting_Airline": airline,
+        "Origin": origin,
+        "Dest": dest,
+
+        "CRSDepTime": dep_hour * 100,
+        "CRSArrTime": arr_hour * 100,
+        "Distance": distance,
+
+        "DEP_HOUR": dep_hour,
+        "ARR_HOUR": arr_hour,
+
+        "temp_origin": temp_orig,
+        "precip_origin": precip_orig,
+        "wind_origin": wind_orig,
+        "visib_origin": visib_orig,
+
+        "temp_dest": temp_dest,
+        "precip_dest": precip_dest,
+        "wind_dest": wind_dest,
+        "visib_dest": visib_dest,
+
+        "dep_hour_sin": np.sin(2 * np.pi * dep_hour / 24),
+        "dep_hour_cos": np.cos(2 * np.pi * dep_hour / 24),
+
+        "arr_hour_sin": np.sin(2 * np.pi * arr_hour / 24),
+        "arr_hour_cos": np.cos(2 * np.pi * arr_hour / 24),
+
+        "is_morning_rush": int(6 <= dep_hour <= 9),
+        "is_evening_rush": int(15 <= dep_hour <= 19),
+
+        "weather_severity_origin":
+            precip_orig * 2 + wind_orig * 0.5 + (10 - visib_orig),
+
+        "weather_severity_dest":
+            precip_dest * 2 + wind_dest * 0.5 + (10 - visib_dest),
+
+        "storm_flag": int(
+            precip_orig > 5 or
+            precip_dest > 5 or
+            wind_orig > 35 or
+            wind_dest > 35
+        ),
+
+        "ROUTE": f"{origin}_{dest}",
+
+        # Keep same feature structure as training.
+        # These are historical traffic-frequency features.
+        "origin_traffic_volume": 1000,
+        "dest_traffic_volume": 1000,
+        "route_traffic_volume": 100
     }])
 
-    for col in ['Reporting_Airline', 'Origin', 'Dest', 'ROUTE']:
-        input_data[col] = input_data[col].astype('category')
+    # Apply the SAME encoder used during model training
+    input_data = target_encoder.transform(input_data)
 
-    try:
-        prob = float(xgb_model.predict_proba(input_data)[0][1])
-        level = "HIGH RISK (Delay Probable)" if prob >= 0.60 else ("MODERATE RISK" if prob >= 0.40 else "LOW RISK")
-    except Exception as e:
-        prob = 0.0
-        level = f"ERROR executing model inference: {e}"
+    # Ensure exact feature order
+    input_data = input_data[feature_columns]
+
+    # XGBoost prediction
+    prob = float(xgb_model.predict_proba(input_data)[0][1])
+
+    if prob >= 0.60:
+        risk_level = "HIGH RISK (Delay Probable)"
+    elif prob >= 0.40:
+        risk_level = "MODERATE RISK"
+    else:
+        risk_level = "LOW RISK"
 
     return {
         **weather_data,
-        'risk_prob': prob,
-        'risk_level': level
+        "risk_prob": prob,
+        "risk_level": risk_level
     }
-
 
 def agent_3_dispatcher(data, flight_date):
     rag_context = ""
